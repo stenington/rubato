@@ -2,14 +2,14 @@ function googlehelper(spec) {
   var feed, start, end;
   feed = spec.feed;
   start = spec.start || new Date();
-  end = spec.end || new Date(start.getFullYear(), start.getMonth(), start.getDate()+7);
-  start = new google.gdata.DateTime(start);
-  end = new google.gdata.DateTime(end);
+  end = spec.end || function(){ var d = new Date(); d.setDate(d.getDate() + 7); return d; }();
 
   var query, service;
 
   var that = {};
 
+  that.start = start;
+  that.end = end;
   that.onFetch = spec.onFetch || function(){};
   that.onFail = spec.onFail || function(){};
 
@@ -17,19 +17,34 @@ function googlehelper(spec) {
     that.fetchAndThen();
   };
 
-  that.fetchAndThen = function(continuation) {
+  that.getQueryObject = function(feed){ 
     if(query === undefined){
-      query = new google.gdata.calendar.CalendarEventQuery(feed);
+      query = new google.gdata.calendar.CalendarEventQuery(feed); 
       query.setSingleEvents(true);
     }
-    if(service === undefined){
-      service = new google.gdata.calendar.CalendarService('this-doesnt-seem-to-matter');
-    }
-    query.setMinimumStartTime(start);
-    query.setMaximumStartTime(end);
-    query.setRecurrenceExpansionStart(start);
-    query.setRecurrenceExpansionEnd(end);
+    return query;
+  };
 
+  that.getServiceObject = function(name){ 
+    if(service === undefined){
+      service = new google.gdata.calendar.CalendarService(name); 
+    }
+    return service;
+  }
+
+  that.getQueryRange = spec.queryRange || function(){ return {start: start, end: end}; };
+
+  that.fetchAndThen = function(continuation) {
+    var query = that.getQueryObject(feed);
+    var queryRange = that.getQueryRange();
+    var g_start = new google.gdata.DateTime(queryRange.start);
+    var g_end = new google.gdata.DateTime(queryRange.end);
+    query.setMinimumStartTime(g_start);
+    query.setMaximumStartTime(g_end);
+    query.setRecurrenceExpansionStart(g_start);
+    query.setRecurrenceExpansionEnd(g_end);
+
+    var service = that.getServiceObject('doesnt-seem-to-matter');
     service.getEventsFeed(
       query, 
       function(result){

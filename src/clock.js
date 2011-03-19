@@ -8,6 +8,16 @@ function clock(spec){
     container.append('<ol id="clock"></ol>');
     $("#clock", container).append('<li id="next"></li>');
     $("#clock > #next", container).append('<span class="time"></span> until <span class="until"></span><span class="type"></span>');
+    $("#clock", container).after('<p id="footer"></p>');
+    $("#footer", container).html('<span id="expand">+</span>');
+    $("#expand", container).hide();
+    $("#expand", container).click(function () {
+      var display = $(".upcoming:last", container).css("display") === 'none' ? 'hidden' : 'visible';
+      var toggleFirst = function(){
+        $(".upcoming:"+display+":first", container).slideToggle(350/$(".upcoming", container).length, "linear", toggleFirst);
+      };
+      toggleFirst();
+    });
   }
 
   var that = {};
@@ -17,8 +27,11 @@ function clock(spec){
     if( !events || !events.length ){
       that.drawEmpty();
     }
-    else {
+    else if( events.length == 1) {
       that.drawNext(events[0]);
+    } else {
+      that.drawNext(events[0]);
+      that.drawRest(events);
     }
   };
 
@@ -33,6 +46,28 @@ function clock(spec){
     $("#next > .time", container).html(timeLeft.timeDisplay);
     $("#next > .until", container).html(next.getMessage());
     $("#next > .type", container).html(next.getType());
+  };
+
+  that.drawRest = function(events){
+    var currentDisplay = $(".upcoming:first", container).css('display');
+    while($("#clock > .upcoming:first", container).length){
+      $("#clock > .upcoming:first", container).remove();
+    };
+    for(var i=1; i<events.length; i++){
+      var prev = events[i-1];
+      var next = events[i];
+      var timeLeft = next.getTimeRemainingFrom(prev.getDate());
+      $("#clock", container).append('<li class="upcoming"></li>');  
+      var upcoming = $("#clock > .upcoming:last");
+      upcoming.html('then <span class="time"></span> until <span class="until"></span><span class="type"></span>');
+      $(".time", upcoming).html(timeLeft.timeDisplay);
+      $(".until", upcoming).html(next.getMessage());
+      $(".type", upcoming).html(next.getType());
+      upcoming.css('display', currentDisplay);
+    }
+    $(".upcoming:even", container).addClass('zebra-black');
+    $(".upcoming:odd", container).addClass('zebra-white');
+    $("#footer > #expand", container).show();
   };
 
   that.updateEvents = function(){

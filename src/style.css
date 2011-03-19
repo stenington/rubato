@@ -3,22 +3,23 @@ body {
   font-size: 28px;
 }
 
-p,ol {
+ol {
   list-style: none;
   margin-top: 1em;
   margin-left: 8px;
   margin-right: 8px;
+  margin-bottom: 0px;
   padding-left: 0px;
 }
 
-ol#upcoming {
+.upcoming {
   display: none;
 }
 
-#next {
+li#next {
   border-bottom: 1px solid #000;
   padding-bottom: 4px;
-  margin-bottom: -1px;
+  margin-bottom: 0px;
 }
 
 #next .time {
@@ -32,22 +33,29 @@ li {
   vertical-align: text-bottom;
 } 
 
-.type, #feed {
+li .type, p .type {
   float: right;
   color: #aaa;
-  font-size: 0.7em;
+  font-size: smaller;
 }
 
 #feed {
+  color: #aaa;
+  font-size: 0.6em;
+  float: right;
   padding-top: 6px;
 }
 
 #footer {
   border-top:1px solid black; 
+  position: relative;
+  top: -1px;
   padding-top: 6px;
-  margin-top:0px;
+  margin-top: 0px;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
-#expand {
-  display: none;
+.zebra-black {
+	background-color: #ddd;
 }

@@ -1,4 +1,7 @@
 function clock(spec){
+  const MINUS = "&#8722;";
+  const INFINITY = "&#8734;";
+
   spec = spec || {};
   var containerId = spec.containerId || "body";
   var events;
@@ -14,7 +17,13 @@ function clock(spec){
     $("#expand", container).click(function () {
       var display = $(".upcoming:last", container).css("display") === 'none' ? 'hidden' : 'visible';
       var toggleFirst = function(){
-        $(".upcoming:"+display+":first", container).slideToggle(350/$(".upcoming", container).length, "linear", toggleFirst);
+        var next = $(".upcoming:"+display+":first", container);
+        if(next.length){
+          next.slideToggle(350/$(".upcoming", container).length, "linear", toggleFirst);
+        }
+        else {
+          $("#expand", container).html(display === 'hidden' ? MINUS : "+");
+        }
       };
       toggleFirst();
     });
@@ -45,7 +54,7 @@ function clock(spec){
   };
 
   that.drawEmpty = function(){
-    $("#next > .time", container).html('&#8734;');
+    $("#next > .time", container).html(INFINITY);
     $("#next > .until", container).html('???');
     $("#next > .type", container).html('one-time');
   };

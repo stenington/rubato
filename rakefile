@@ -1,0 +1,11 @@
+task :default => :index
+
+task :index do
+  text = File.read("src/countdown.html")
+  replace = text.gsub(/\.\.\/src/, "src")
+  File.open("./index.html", "w") {|file| file.puts replace}
+end
+
+task :tar do
+  system("env COPYFILE_DISABLE=true tar -C .. --exclude=.git --exclude=*.tar.gz -czvf countdown.tar.gz countdown/")
+end

@@ -8,44 +8,76 @@
 <script type="text/javascript" src="lib/jquery-1.5.1.js"></script>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
-var helper = googlehelper({
-  feed: "https://www.google.com/calendar/feeds/bmojkrmcasv362rvqili27u2k8@group.calendar.google.com/public/full",
-  queryRange:function(){ 
-    var now = new Date();
-    var oneWeek = new Date();
-    oneWeek.setDate(oneWeek.getDate() + 7);
-    return { start: now, end: oneWeek };
-  },
-  onFetch:function(results){ 
-    var timepoints = [];
-    for(i in results){
-      timepoints[i] = timepoint({
-        date: results[i].getTimes()[0].getStartTime().date,
-        message: results[i].getTitle().getText(),
-        type: results[i].getOriginalEvent() === undefined ? 'one-time' : 'weekly'
-      });
-    }
-    return timepoints; 
-  },
-  onFail:function(e){
-    alert(e.cause ? e.cause.statusText : e.message);
+var urlVars = (function(){
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for(var i = 0; i < hashes.length; i++){
+    hash = hashes[i].split('=');
+    vars.push(hash[0]);
+    vars[hash[0]] = hash[1];
   }
-});
+  return vars;
+})();
 
 var clockFace;
+var cal = urlVars['calendar'];
+
 $(document).ready(function(){
   clockFace = clock({containerId:"body"});
+  if( cal === undefined ){
+    var msg = "Enter a public Google Calendar ID and hit enter to get started";
+    clockFace.setMessage('<input id="feedEntry" type="text" value="'+msg+'" style="width:350px"/>');
+    $("#feedEntry").focus(function(){
+      $(this).val("");
+      $(this).unbind('focus');
+    });
+    $("#feedEntry").keypress(function(event){
+      if (event.which == '13') {
+        var baseUrl = window.location.href.indexOf('?') !== -1 ? window.location.href.slice(0, window.location.href.indexOf('?')) : window.location.href;
+        window.location =  baseUrl+ "?calendar=" + $("#feedEntry").val();
+      }
+    });
+  }
+  else {
+    clockFace.setMessage(cal);
+  }
   clockFace.draw();
   setInterval(clockFace.draw, 60000);
 });
 
-google.load("gdata", "2");
-google.setOnLoadCallback(function(){
-  helper.fetchAndThen(function(entries){
-    clockFace.setEvents(entries);
-    clockFace.draw();
+if( cal !== undefined ){
+  var helper = googlehelper({
+    feed: "https://www.google.com/calendar/feeds/"+cal+"/public/full",
+    queryRange:function(){ 
+      var now = new Date();
+      var oneWeek = new Date();
+      oneWeek.setDate(oneWeek.getDate() + 7);
+      return { start: now, end: oneWeek };
+    },
+    onFetch:function(results){ 
+      var timepoints = [];
+      for(i in results){
+        timepoints[i] = timepoint({
+          date: results[i].getTimes()[0].getStartTime().date,
+          message: results[i].getTitle().getText(),
+          type: results[i].getOriginalEvent() === undefined ? 'one-time' : 'weekly'
+        });
+      }
+      return timepoints; 
+    },
+    onFail:function(e){
+      alert(e.cause ? e.cause.statusText : e.message);
+    }
   });
-});
+
+  google.load("gdata", "2");
+  google.setOnLoadCallback(function(){
+    helper.fetchAndThen(function(entries){
+      clockFace.setEvents(entries);
+      clockFace.draw();
+    });
+  });
+}
 </script>
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>

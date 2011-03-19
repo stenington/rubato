@@ -148,19 +148,28 @@ describe("Clock", function(){
         message: "one",
         type: "foo"
       }),
+      timepoint({
+        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+2); return d; }(),
+        message: "two",
+        type: "foo"
+      }),
     ]);
     c.draw();
     assert($("#clock #next .time", container).html()).should(eql, "0:00");
     assert($("#clock #next .until", container).html()).should(eql, "one");
     assert($("#clock #next .type", container).html()).should(eql, "foo");
+    assert($("#clock .upcoming .time", container).html()).should(eql, "0:00");
+    assert($("#clock .upcoming .until", container).html()).should(eql, "two");
+    assert($("#clock .upcoming .type", container).html()).should(eql, "foo");
     stop();
     setTimeout(function(){
       c.draw();
       assert($("#clock #next .time", container).html()).should(eql, "\u221E");
       assert($("#clock #next .until", container).html()).should(eql, "???");
       assert($("#clock #next .type", container).html()).should(eql, "one-time");
+      assert($(".upcoming", container).length).should(eql, 0);
       start();
-    }, 1500);
+    }, 2100);
   });
 
   it("should display list of additional upcoming events", function(){
@@ -261,6 +270,28 @@ describe("Clock", function(){
     assert($("#footer > #expand", container).css('display')).shouldNot(eql, 'none');
   });
 
+  asyncIt("should not display expansion button when upcoming events have expired", function(){
+    c.setEvents([
+      timepoint({
+        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
+        message: "one",
+        type: "foo"
+      }),
+      timepoint({
+        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+2); return d; }(),
+        message: "two",
+        type: "foo"
+      }),
+    ]);
+    c.draw();
+    assert($("#footer > #expand", container).css('display')).shouldNot(eql, 'none');
+    setTimeout(function(){
+      c.draw();
+      assert($("#footer > #expand", container).css('display')).should(eql, 'none');
+      start();
+    }, 2100);
+  });
+
   it("should zebra-stripe upcoming events by day", function(){
     c.setEvents([
       timepoint({
@@ -301,6 +332,13 @@ describe("Clock", function(){
     assert($(upcomings[2]).hasClass('zebra-black')).should(be);
     assert($(upcomings[3]).hasClass('zebra-white')).should(be);
     assert($(upcomings[4]).hasClass('zebra-white')).should(be);
+  });
+
+  it("should provide a calendar id field to be set at will", function(){
+    c.draw();
+    assert($("#footer > #msg", container).length).should(eql, 1);
+    c.setMessage("oh hello");
+    assert($("#footer > #msg", container).html()).should(eql, "oh hello");
   });
 });
 

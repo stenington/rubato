@@ -9,7 +9,7 @@ function clock(spec){
     $("#clock", container).append('<li id="next"></li>');
     $("#clock > #next", container).append('<span class="time"></span> until <span class="until"></span><span class="type"></span>');
     $("#clock", container).after('<p id="footer"></p>');
-    $("#footer", container).html('<span id="expand">+</span>');
+    $("#footer", container).html('<span id="expand">+</span><span id="msg"></span>');
     $("#expand", container).hide();
     $("#expand", container).click(function () {
       var display = $(".upcoming:last", container).css("display") === 'none' ? 'hidden' : 'visible';
@@ -22,14 +22,23 @@ function clock(spec){
 
   var that = {};
 
+  var currentDisplay; 
+
   that.draw = function(){
     that.updateEvents();
+    currentDisplay = $(".upcoming:first", container).css('display');
+    while($("#clock > .upcoming:first", container).length){
+      $("#clock > .upcoming:first", container).remove();
+    };
     if( !events || !events.length ){
+      $("#footer > #expand", container).hide();
       that.drawEmpty();
     }
     else if( events.length == 1) {
+      $("#footer > #expand", container).hide();
       that.drawNext(events[0]);
     } else {
+      $("#footer > #expand", container).show();
       that.drawNext(events[0]);
       that.drawRest(events);
     }
@@ -50,10 +59,6 @@ function clock(spec){
 
   that.drawRest = function(events){
     var currentStripe = 'zebra-white';
-    var currentDisplay = $(".upcoming:first", container).css('display');
-    while($("#clock > .upcoming:first", container).length){
-      $("#clock > .upcoming:first", container).remove();
-    };
     for(var i=1; i<events.length; i++){
       var prev = events[i-1];
       var next = events[i];
@@ -70,14 +75,11 @@ function clock(spec){
       upcoming.css('display', currentDisplay);
       upcoming.addClass(currentStripe);
     }
-    $("#footer > #expand", container).show();
   };
 
   that.updateEvents = function(){
-    for(i in events){
-      if(events[i].isExpired()){
-        events.shift();
-      }
+    while(events && events.length && events[0].isExpired()){
+      events.shift();
     }
   };
 
@@ -86,6 +88,10 @@ function clock(spec){
     events.sort(function(a, b){
       return a.getDate().getTime() - b.getDate().getTime(); 
     });
+  };
+
+  that.setMessage = function(msg){
+    $("#footer > #msg", container).html(msg);
   };
 
   return that;

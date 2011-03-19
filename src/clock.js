@@ -49,6 +49,7 @@ function clock(spec){
   };
 
   that.drawRest = function(events){
+    var currentStripe = 'zebra-white';
     var currentDisplay = $(".upcoming:first", container).css('display');
     while($("#clock > .upcoming:first", container).length){
       $("#clock > .upcoming:first", container).remove();
@@ -56,6 +57,9 @@ function clock(spec){
     for(var i=1; i<events.length; i++){
       var prev = events[i-1];
       var next = events[i];
+      if( next.getDate().getDay() != prev.getDate().getDay() ){
+        currentStripe = currentStripe == 'zebra-white' ? 'zebra-black' : 'zebra-white';
+      }
       var timeLeft = next.getTimeRemainingFrom(prev.getDate());
       $("#clock", container).append('<li class="upcoming"></li>');  
       var upcoming = $("#clock > .upcoming:last");
@@ -64,9 +68,8 @@ function clock(spec){
       $(".until", upcoming).html(next.getMessage());
       $(".type", upcoming).html(next.getType());
       upcoming.css('display', currentDisplay);
+      upcoming.addClass(currentStripe);
     }
-    $(".upcoming:even", container).addClass('zebra-black');
-    $(".upcoming:odd", container).addClass('zebra-white');
     $("#footer > #expand", container).show();
   };
 

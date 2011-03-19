@@ -261,32 +261,46 @@ describe("Clock", function(){
     assert($("#footer > #expand", container).css('display')).shouldNot(eql, 'none');
   });
 
-  it("should zebra-stripe upcoming events", function(){
+  it("should zebra-stripe upcoming events by day", function(){
     c.setEvents([
       timepoint({
         date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
-        message: "one",
+        message: "next",
         type: "foo"
       }),
       timepoint({
         date: function(){ var d = new Date(); d.setHours(d.getHours()+2); return d; }(),
-        message: "two",
+        message: "today",
         type: "foo"
       }),
       timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+3); return d; }(),
-        message: "three",
+        date: function(){ var d = new Date(); d.setDate(d.getDate()+1); return d; }(),
+        message: "tomorrow",
         type: "foo"
       }),
       timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+4); return d; }(),
-        message: "four",
+        date: function(){ var d = new Date(); d.setDate(d.getDate()+1); return d; }(),
+        message: "tomorrow",
+        type: "foo"
+      }),
+      timepoint({
+        date: function(){ var d = new Date(); d.setDate(d.getDate()+2); return d; }(),
+        message: "day after tomorrow",
+        type: "foo"
+      }),
+      timepoint({
+        date: function(){ var d = new Date(); d.setDate(d.getDate()+2); return d; }(),
+        message: "day after tomorrow",
         type: "foo"
       }),
     ]);
     c.draw();
-    assert($(".upcoming:even", container).hasClass('zebra-black')).should(be);
-    assert($(".upcoming:odd", container).hasClass('zebra-white')).should(be);
+    var upcomings = $(".upcoming", container).toArray();
+    assert($(upcomings[0]).hasClass('zebra-white')).should(be);
+    assert($(upcomings[1]).hasClass('zebra-black')).should(be);
+    assert($(upcomings[2]).hasClass('zebra-black')).should(be);
+    assert($(upcomings[3]).hasClass('zebra-white')).should(be);
+    assert($(upcomings[4]).hasClass('zebra-white')).should(be);
   });
 });
 

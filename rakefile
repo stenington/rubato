@@ -7,5 +7,8 @@ task :index do
 end
 
 task :tar do
-  system("env COPYFILE_DISABLE=true tar -C .. --exclude=.git --exclude=*.tar.gz -czvf countdown.tar.gz countdown/")
+  excludes = [".git*", "*.tar.gz"]
+  tarCmd = "env COPYFILE_DISABLE=true tar -C .. --exclude=" + excludes.join(" --exclude=") + " -czvf countdown.tar.gz countdown/"
+  puts "tarring with: " + tarCmd
+  system(tarCmd)
 end

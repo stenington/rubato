@@ -3,47 +3,52 @@
 <head>
 <title>Clock</title>
 <script type="text/javascript" src="googlehelper.js"></script>
+<script type="text/javascript" src="timepoint.js"></script>
+<script type="text/javascript" src="clock.js"></script>
 <script type="text/javascript" src="lib/jquery-1.5.1.js"></script>
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
+var helper = googlehelper({
+  feed: "https://www.google.com/calendar/feeds/bmojkrmcasv362rvqili27u2k8@group.calendar.google.com/public/full",
+  queryRange:function(){ 
+    var now = new Date();
+    var oneWeek = new Date();
+    oneWeek.setDate(oneWeek.getDate() + 7);
+    return { start: now, end: oneWeek };
+  },
+  onFetch:function(results){ 
+    var timepoints = [];
+    for(i in results){
+      timepoints[i] = timepoint({
+        date: results[i].getTimes()[0].getStartTime().date,
+        message: results[i].getTitle().getText(),
+        type: results[i].getOriginalEvent() === undefined ? 'one-time' : 'weekly'
+      });
+    }
+    return timepoints; 
+  },
+  onFail:function(e){
+    alert("shit");
+  }
+});
+
+var clockFace;
+$(document).ready(function(){
+  clockFace = clock({containerId:"body"});
+  clockFace.draw();
+  setInterval(clockFace.draw, 60000);
+});
 
 google.load("gdata", "2");
 google.setOnLoadCallback(function(){
-  var helper = googlehelper({
-    feed: "https://www.google.com/calendar/feeds/bmojkrmcasv362rvqili27u2k8@group.calendar.google.com/public/full",
-    start: new Date(2011, 0, 2),
-    end: new Date(2011, 0, 8),
-    onFetch: function( entries ) {
-      // translate to timepoints and sort, then return them 
-    },
-    onFail: function( error ) {}
-  });
-  helper.fetchAndThen(function(tps){
-    // Init
-    alert(entries.length + " timepoints fetched!");
-    setInterval(function(){
-        helper.fetchAndThen(function(tps){
-          // update
-          alert(entries.length + " refetched!");
-        });
-      }, 5000 // something bigger probably
-    );
-    setInterval(function(){
-        // redraw
-        // expire dead entries?
-        alert("update clock!");
-      }, 1000
-    );
+  helper.fetchAndThen(function(entries){
+    clockFace.setEvents(entries);
+    clockFace.draw();
   });
 });
 </script>
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
-  <p id="next">
-    <span class="time">&#8734;</span> until <span class="until">???</span> 
-    <span class="type">one-time</span></p>
-  <ol id="upcoming"></ol>
-  <p id="footer"><span id="expand">+</span><span id="feed">https://www.google.com/calendar/feed/here</span></p>
 </body>
 </html>

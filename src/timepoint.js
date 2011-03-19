@@ -41,6 +41,13 @@ var timepoint = function(spec) {
     return that.getTimeRemainingFrom(new Date());
   };
 
+  that.isExpired = function() {
+    var d = new Date();
+    var foo = d.getTime();
+    var bar = that.getDate().getTime();
+    return (d.getTime() - that.getDate().getTime()) > 0;
+  };
+
   return that;
 };
 

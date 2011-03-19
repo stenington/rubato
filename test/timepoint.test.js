@@ -77,6 +77,14 @@ describe("Timepoint", function(){
     assert(tp.getTimeRemainingFrom(now).minutes).should(match, /07/);
     assert(tp.getTimeRemainingFrom(now).seconds).should(match, /01/);
   });
+
+  it("should know when it's expired", function(){
+    var tp = timepoint({
+      date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()-1); return d; }(),
+      message: "death"
+    });
+    assert(tp.isExpired()).should(be);
+  });
 });
 
 describe("Timepoint Generator", function(){

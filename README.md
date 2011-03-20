@@ -1,7 +1,7 @@
 # Rubato
 
 *Tempo rubato* is a musical term referring to the expressive shaping of a piece by a slight speeding up and then 
-slowing down of its tempo at the discretion of the musician.
+slowing down of its tempo at the discretion of the musician. It literally means *stolen time*.
 
 Rubato is a tool to help you use your discretion to shape your time. It aims to free you from clock-watching 
 as much as its can! It shows you the negative space between important

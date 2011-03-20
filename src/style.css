@@ -39,6 +39,10 @@ li .type, p .type {
   font-size: smaller;
 }
 
+#expand {
+  cursor: pointer;
+}
+
 #msg {
   color: #aaa;
   font-size: 0.6em;

@@ -1,6 +1,10 @@
 # Rubato
 
-Rubato aims to free you from clock-watching as much as it can! It shows you the negative space between important
+*Tempo rubato* is a musical term referring to the expressive shaping of a piece by a slight speeding up and then 
+slowing down of its tempo at the discretion of the musician.
+
+Rubato is a tool to help you use your discretion to shape your time. It aims to free you from clock-watching 
+as much as its can! It shows you the negative space between important
 points in your schedule, leaving you free to build your intervening schedule in whatever way feels best.
 
 ## Use Rubato
@@ -13,6 +17,16 @@ You'll see something like `(Calendar ID: bmojkrmcasv362rvqili27u2k8@group.calend
 is checked. That's it!
 
 Once you have entered your calendar ID, that page is bookmarkable. You won't have to enter it every time.
+
+## Easier still...
+
+Visit [Rubato here](http://www.mikeandcordelia.com/rubato/) and enter an ID, or use 
+`1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com` to see a demo schedule and get a taste of what Rubato is like. 
+[This link](http://www.mikeandcordelia.com/rubato/index.html?calendar=1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com)
+will even take you straight there. 
+
+Here's [the same calendar](https://www.google.com/calendar/embed?src=1blfd3aakdn00t7tnm89h5vdkk%40group.calendar.google.com&ctz=America/New_York)
+in Google Calendar for comparison.
 
 ## Develop Rubato
 

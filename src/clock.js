@@ -10,7 +10,7 @@ function clock(spec){
   if( !$("#clock", container).length ){
     container.append('<ol id="clock"></ol>');
     $("#clock", container).append('<li id="next"></li>');
-    $("#clock > #next", container).append('<span class="time"></span> until <span class="until"></span><span class="type"></span>');
+    $("#clock > #next", container).append('<span class="time"></span> until <span class="until"></span> <span class="day"></span><span class="type"></span>');
     $("#clock", container).after('<p id="footer"></p>');
     $("#footer", container).html('<span id="expand">+</span><span id="msg"></span>');
     $("#expand", container).hide();
@@ -57,6 +57,7 @@ function clock(spec){
     $("#next > .time", container).html(INFINITY);
     $("#next > .until", container).html('???');
     $("#next > .type", container).html('one-time');
+    $("#next > .day", container).empty();
   };
 
   that.drawNext = function(next){
@@ -64,6 +65,7 @@ function clock(spec){
     $("#next > .time", container).html(timeLeft.timeDisplay);
     $("#next > .until", container).html(next.getMessage());
     $("#next > .type", container).html(next.getType());
+    $("#next > .day", container).html(next.getDay());
   };
 
   that.drawRest = function(events){
@@ -77,7 +79,7 @@ function clock(spec){
       var timeLeft = next.getTimeRemainingFrom(prev.getDate());
       $("#clock", container).append('<li class="upcoming"></li>');  
       var upcoming = $("#clock > .upcoming:last");
-      upcoming.html('then <span class="time"></span> until <span class="until"></span> on <span class="day"></span><span class="type"></span>');
+      upcoming.html('then <span class="time"></span> until <span class="until"></span> <span class="day"></span><span class="type"></span>');
       $(".time", upcoming).html(timeLeft.timeDisplay);
       $(".until", upcoming).html(next.getMessage());
       $(".type", upcoming).html(next.getType());

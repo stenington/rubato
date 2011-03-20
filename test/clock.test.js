@@ -78,6 +78,7 @@ describe("Clock", function(){
     assert($("#clock #next .time", container).html()).should(eql, "1:00");
     assert($("#clock #next .until", container).html()).should(eql, "hi");
     assert($("#clock #next .type", container).html()).should(eql, "foo");
+    assert($("#clock #next .day", container).html()).should(match, /today|tomorrow/);
   });
 
   it("should not double-draw existing event", function(){
@@ -190,7 +191,7 @@ describe("Clock", function(){
     assert($("#clock > .upcoming:first > .time", container).html()).should(eql, "1:59");
     assert($("#clock > .upcoming:first > .until", container).html()).should(eql, "two");
     assert($("#clock > .upcoming:first > .type", container).html()).should(eql, "foo");
-    assert($("#clock > .upcoming:first > .day", container).html()).should(match, /^Mon|Tues|Wed|Thurs|Fri|Sat|Sun/);
+    assert($("#clock > .upcoming:first > .day", container).html()).should(match, /today|tomorrow/);
   });
 
   it("upcoming events should be in order", function(){

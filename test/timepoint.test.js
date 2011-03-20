@@ -36,6 +36,21 @@ describe("Timepoint", function(){
     assert(tp.getDay()).should(eql, "Tuesday");
   });
 
+  it("should report day as 'today' and 'tomorrow'", function(){
+    tp = timepoint({
+      date: new Date(),
+      message: "hi",
+      type: "foo"
+    });
+    assert(tp.getDay()).should(eql, "today");
+    tp = timepoint({
+      date: (function(){ var d = new Date(); d.setDate(d.getDate()+1); return d;})(),
+      message: "hi",
+      type: "foo"
+    });
+    assert(tp.getDay()).should(eql, "tomorrow");
+  });
+
   it("should have 'time remaining from' helper", function(){
     var now = new Date(2011, 0, 1);
     var tp = timepoint({

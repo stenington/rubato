@@ -14,7 +14,17 @@ var timepoint = function(spec) {
   };
 
   that.getDay = function() {
-    return days[that.getDate().getDay()];
+    var now = new Date();
+    var then = that.getDate();
+    if( now.getFullYear() == then.getFullYear() && now.getMonth() == then.getMonth() && now.getDate() == then.getDate() ){
+      return "today";
+    }
+    else if( now.getFullYear() == then.getFullYear() && now.getMonth() == then.getMonth() && now.getDate() == then.getDate()-1 ){
+      return "tomorrow";
+    }
+    else {
+      return days[then.getDay()];
+    }
   };
 
   that.getMessage = function() {

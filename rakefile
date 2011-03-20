@@ -22,6 +22,9 @@ task :tar do
   system(tarCmd)
 end
 
+desc "build index and tar it up"
+task :all => [:clean, :index, :tar]
+
 desc "clean up"
 task :clean do
   FileUtils.rm_f %Q( index.html #{TAR} ), :verbose => true

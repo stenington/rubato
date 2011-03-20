@@ -1,6 +1,6 @@
 function clock(spec){
-  const MINUS = "&#8722;";
-  const INFINITY = "&#8734;";
+  const MINUS = "\u2212";
+  const INFINITY = "\u221E";
 
   spec = spec || {};
   var containerId = spec.containerId || "body";
@@ -58,6 +58,7 @@ function clock(spec){
     $("#next > .until", container).html('???');
     $("#next > .type", container).html('one-time');
     $("#next > .day", container).empty();
+    document.title = "Rubato: " + "\u221E";
   };
 
   that.drawNext = function(next){
@@ -66,6 +67,7 @@ function clock(spec){
     $("#next > .until", container).html(next.getMessage());
     $("#next > .type", container).html(next.getType());
     $("#next > .day", container).html(next.getDay());
+    document.title = "Rubato: " + timeLeft.timeDisplay;
   };
 
   that.drawRest = function(events){

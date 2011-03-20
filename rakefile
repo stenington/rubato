@@ -1,4 +1,4 @@
-PROJ = "countdown"
+PROJ = "rubato"
 TAR = "#{PROJ}.tar.gz"
 DIR = "#{PROJ}/"
 

@@ -64,3 +64,35 @@ li .type, p .type {
 .zebra-black {
 	background-color: #ddd;
 }
+
+#helpLink {
+  margin-top: 6px;
+  margin-right: 8px;
+  font-size: 0.4em;
+  float: right;
+}
+
+#help {
+  float: right;
+  clear: both;
+  width: 50em;
+  font-size: 0.5em;
+  text-align: right;
+  margin-top: 8px;
+  margin-right: 8px;
+  background-color: #98FB98;
+  padding: 8px;
+}
+
+#help em{
+  white-space: nowrap;
+}
+
+#feedEntry {
+  display: block;
+}
+
+#cancel {
+  font-size: 0.6em;
+  float:right;
+  margin-top: 6px;

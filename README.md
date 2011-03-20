@@ -18,7 +18,7 @@ is checked. That's it!
 
 Once you have entered your calendar ID, that page is bookmarkable. You won't have to enter it every time.
 
-## Easier still...
+### Easier still...
 
 Visit [Rubato here](http://www.mikeandcordelia.com/rubato/) and enter an ID, or use 
 `1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com` to see a demo schedule and get a taste of what Rubato is like. 

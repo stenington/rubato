@@ -34,21 +34,42 @@ $(document).ready(function(){
   clockFace = clock({containerId:"body"});
 
   if( cal === undefined ){
-    var msg = "Enter a public Google Calendar ID and hit enter to get started";
+    var msg = "Enter a public Google Calendar ID and hit enter to get started!";
     clockFace.setMessage('<input id="feedEntry" type="text" value="'+msg+'" style="width:350px"/>');
     $("#feedEntry").focus(function(){
       $(this).val("");
       $(this).unbind('focus');
     });
     $("#feedEntry").keypress(redirectOnEnter);
+    $("body").append('<a href="" id="helpLink">More help...</a>');
+    $("body").append('<p id="help">To find your <strong>Google Calendar ID</strong> look at the <em>Calendar Address</em> section under your calendar\'s <em>Calendar settings</em>.<br/>You\'ll see something like <strong>(Calendar&nbsp;ID:&nbsp;1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com)</strong>.<br/>Copy that ID, then click <em>Change sharing settings</em> and make sure <em>Make this calendar public</em> is checked.<br/>Paste in the ID above and you\'re on your way. That\'s it!</p>');
+    $("#help").hide();
+    $("#helpLink").click(function(){
+      $("#help").fadeToggle("fast");
+      return false;
+    });
   }
   else {
-    clockFace.setMessage('<span id="feedEntry">'+cal+'</span>');
-    $("#feedEntry").dblclick(function(){
-      $(this).replaceWith('<input id="feedEntry" type="text" value="'+cal+'" style="width:350px"/>');
+    var feed = '<span id="feed">'+cal+'</span>';
+    clockFace.setMessage(feed);
+    var switchToNonEditable = function(){
+      $("#feedEntry").replaceWith(feed);
+      $("#feed").unbind('keypress');
+      $("#feed").unbind('blur');
+      $("#feed").dblclick(switchToEditable);
+      $("#cancel").remove();
+    };
+    var switchToEditable = function(){
+      $("#feed").replaceWith('<input id="feedEntry" type="text" value="'+cal+'" style="width:350px"/><a href="" id="cancel">Cancel</a>');
+      $("#feedEntry").unbind('dblclick');
       $("#feedEntry").keypress(redirectOnEnter);
       $("#feedEntry").focus();
-    });
+      $("#cancel").click(function(){
+        switchToNonEditable();
+        return false;
+      });
+    };
+    $("#feed").dblclick(switchToEditable);
   }
   clockFace.draw();
   setInterval(clockFace.draw, 60000);

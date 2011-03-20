@@ -190,6 +190,7 @@ describe("Clock", function(){
     assert($("#clock > .upcoming:first > .time", container).html()).should(eql, "1:59");
     assert($("#clock > .upcoming:first > .until", container).html()).should(eql, "two");
     assert($("#clock > .upcoming:first > .type", container).html()).should(eql, "foo");
+    assert($("#clock > .upcoming:first > .day", container).html()).should(match, /^Mon|Tues|Wed|Thurs|Fri|Sat|Sun/);
   });
 
   it("upcoming events should be in order", function(){
@@ -295,12 +296,12 @@ describe("Clock", function(){
   it("should zebra-stripe upcoming events by day", function(){
     c.setEvents([
       timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
+        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+5); return d; }(),
         message: "next",
         type: "foo"
       }),
       timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+2); return d; }(),
+        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+10); return d; }(),
         message: "today",
         type: "foo"
       }),

@@ -77,10 +77,11 @@ function clock(spec){
       var timeLeft = next.getTimeRemainingFrom(prev.getDate());
       $("#clock", container).append('<li class="upcoming"></li>');  
       var upcoming = $("#clock > .upcoming:last");
-      upcoming.html('then <span class="time"></span> until <span class="until"></span><span class="type"></span>');
+      upcoming.html('then <span class="time"></span> until <span class="until"></span> on <span class="day"></span><span class="type"></span>');
       $(".time", upcoming).html(timeLeft.timeDisplay);
       $(".until", upcoming).html(next.getMessage());
       $(".type", upcoming).html(next.getType());
+      $(".day", upcoming).html(next.getDay());
       upcoming.css('display', currentDisplay);
       upcoming.addClass(currentStripe);
     }

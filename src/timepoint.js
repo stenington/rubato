@@ -5,10 +5,16 @@ var timepoint = function(spec) {
   message = spec.message || "";
   type = spec.type || "";
 
+  var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
   var that = {};
 
   that.getDate = function() {
     return date;
+  };
+
+  that.getDay = function() {
+    return days[that.getDate().getDay()];
   };
 
   that.getMessage = function() {

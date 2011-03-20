@@ -1,14 +1,28 @@
+PROJ = "countdown"
+TAR = "#{PROJ}.tar.gz"
+DIR = "#{PROJ}/"
+
+desc "runs index"
 task :default => :index
 
+desc "builds index.html"
 task :index do
-  text = File.read("src/countdown.html")
+  puts "creating index.html..."
+  text = File.read("src/#{PROJ}.html")
   replace = text.gsub(/\.\.\/src/, "src")
   File.open("./index.html", "w") {|file| file.puts replace}
+  puts "done"
 end
 
+desc "tar up the project"
 task :tar do
-  excludes = [".git*", "*.tar.gz"]
-  tarCmd = "env COPYFILE_DISABLE=true tar -C .. --exclude=" + excludes.join(" --exclude=") + " -czvf countdown.tar.gz countdown/"
+  excludes = %w( .git* *.tar.gz )
+  tarCmd = "env COPYFILE_DISABLE=true tar -C .." + excludes.map{|ex| " --exclude=" + ex}.to_s + " -czvf #{TAR} #{DIR}"
   puts "tarring with: " + tarCmd
   system(tarCmd)
+end
+
+desc "clean up"
+task :clean do
+  FileUtils.rm_f %Q( index.html #{TAR} ), :verbose => true
 end

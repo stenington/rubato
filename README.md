@@ -36,7 +36,7 @@ use [specit](https://github.com/joshuaclayton/specit).
 
 ### Run the tests
 
-Go to `test/all.test.html` and look for green!
+Go to `test/all.test.html` and look for green! [Here](http://www.mikeandcordelia.com/rubato/test/all.test.html) are the tests for the deployment above.
 
 ### Rakefile
 

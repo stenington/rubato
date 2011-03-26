@@ -32,6 +32,7 @@ li#next {
 li {
   padding: 4px 6px 2px 6px;
   vertical-align: text-bottom;
+  overflow: auto;
 } 
 
 li .type, p .type {
@@ -48,17 +49,16 @@ li .type, p .type {
   color: #aaa;
   font-size: 0.6em;
   float: right;
-  padding-top: 6px;
+  padding: 6px;
 }
 
 #footer {
   border-top:1px solid black; 
   position: relative;
   top: -1px;
+  overflow: auto;
   padding-top: 6px;
-  margin-top: 0px;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin: 0px 8px;
 }
 
 .zebra-black {

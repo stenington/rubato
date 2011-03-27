@@ -1,3 +1,11 @@
+try {
+  require('fs').statSync("./jasmine-node");
+}
+catch (e) {
+  console.error("Please run 'git clone https://github.com/mhevery/jasmine-node.git' in this directory.");
+  process.exit(1);
+}
+
 require.paths.push("./jasmine-node/lib");
 var jasmine = require('jasmine');
 var sys = require('sys');

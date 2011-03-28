@@ -7,6 +7,7 @@ catch (e) {
 }
 
 require.paths.push("./jasmine-node/lib");
+require.paths.push("./lib");
 var jasmine = require('jasmine');
 var sys = require('sys');
 

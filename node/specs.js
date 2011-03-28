@@ -2,7 +2,7 @@ try {
   require('fs').statSync("./jasmine-node");
 }
 catch (e) {
-  console.error("Please run 'git clone https://github.com/mhevery/jasmine-node.git' in this directory.");
+  console.error("Please run 'git clone https://github.com/stenington/jasmine-node.git' in this directory.");
   process.exit(1);
 }
 

@@ -44,7 +44,7 @@ function googlehelper(spec) {
     query.setRecurrenceExpansionStart(g_start);
     query.setRecurrenceExpansionEnd(g_end);
 
-    var service = that.getServiceObject('doesnt-seem-to-matter');
+    var service = that.getServiceObject('stenington-rubato-v1');
     service.getEventsFeed(
       query, 
       function(result){

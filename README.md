@@ -1,11 +1,15 @@
 # Rubato
 
 *Tempo rubato* is a musical term referring to the expressive shaping of a piece by a slight speeding up and then 
-slowing down of its tempo at the discretion of the musician. It literally means *stolen time*.
+slowing down of its tempo at the discretion of the musician. It literally translates as *stolen time*.
 
 Rubato is a tool to help you use your discretion to shape your time. It aims to free you from clock-watching 
-as much as its can! It shows you the negative space between important
+as much as it can! It shows you the negative space between important
 points in your schedule, leaving you free to build your intervening schedule in whatever way feels best.
+
+## News ##
+
+It turns out servers don't like lightning. Several links below (marked with strikethrough) are broken until Rubato finds a new home.
 
 ## Use Rubato
 
@@ -20,9 +24,9 @@ Once you have entered your calendar ID, that page is bookmarkable. You won't hav
 
 ### Easier still...
 
-Visit [Rubato here](http://www.mikeandcordelia.com/rubato/) and enter an ID, or use 
+Visit <del>[Rubato here](http://www.mikeandcordelia.com/rubato/)</del> and enter an ID, or use 
 `1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com` to see a demo schedule and get a taste of what Rubato is like. 
-[This link](http://www.mikeandcordelia.com/rubato/index.html?calendar=1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com)
+<del>[This link](http://www.mikeandcordelia.com/rubato/index.html?calendar=1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com)</del>
 will even take you straight there. 
 
 Here's [the same calendar](https://www.google.com/calendar/embed?src=1blfd3aakdn00t7tnm89h5vdkk%40group.calendar.google.com&ctz=America/New_York)
@@ -36,7 +40,7 @@ use [specit](https://github.com/joshuaclayton/specit).
 
 ### Run the tests
 
-Go to `test/all.test.html` and look for green! [Here](http://www.mikeandcordelia.com/rubato/test/all.test.html) are the tests for the deployment above.
+Go to `test/all.test.html` and look for green! <del>[Here](http://www.mikeandcordelia.com/rubato/test/all.test.html)</del> are the tests for the deployment above.
 
 ### Rakefile
 

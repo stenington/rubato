@@ -16,7 +16,7 @@ end
 
 desc "tar up the project"
 task :tar do
-  excludes = %w( .git* *.tar.gz )
+  excludes = %w( .git* *.tar.gz rakefile node README.md )
   tarCmd = "env COPYFILE_DISABLE=true tar -C .." + excludes.map{|ex| " --exclude=" + ex}.to_s + " -czvf #{TAR} #{DIR}"
   puts "tarring with: " + tarCmd
   system(tarCmd)
@@ -29,3 +29,26 @@ desc "clean up"
 task :clean do
   FileUtils.rm_f %Q( index.html #{TAR} ), :verbose => true
 end
+
+require 'yaml'
+server = YAML::load(File.open('server.yml'))
+HOST = server['HOST']
+USER = server['USER']
+REMOTE_DIR = server['REMOTE_DIR']
+
+desc "deploy to #{HOST}"
+task :deploy do 
+  require 'net/ssh'
+  require 'net/scp'
+  Net::SSH.start(HOST, USER) do |ssh|
+    puts "scp #{TAR} -> #{REMOTE_DIR}"
+    ssh.scp.upload! "./#{TAR}", "#{REMOTE_DIR}#{TAR}" do |ch, name, sent, total|
+      puts "  #{name}: #{sent} sent of #{total}"
+    end
+    puts "unpacking..."
+    ssh.exec!("tar -xzvf #{REMOTE_DIR}#{TAR} -C #{REMOTE_DIR} -m").each_line do |line|
+      puts "  #{line}"
+    end
+  end
+end
+

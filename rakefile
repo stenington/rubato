@@ -17,7 +17,7 @@ end
 desc "tar up the project"
 task :tar do
   excludes = %w( .git* *.tar.gz rakefile node README.md )
-  tarCmd = "env COPYFILE_DISABLE=true tar -C .." + excludes.map{|ex| " --exclude=" + ex}.to_s + " -czvf #{TAR} #{DIR}"
+  tarCmd = "env COPYFILE_DISABLE=true tar -C .." + excludes.map{|ex| " --exclude=" + ex}.join(" ") + " -czvf #{TAR} #{DIR}"
   puts "tarring with: " + tarCmd
   system(tarCmd)
 end

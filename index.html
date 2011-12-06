@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Rubato: ∞</title>
+<link href="src/style.css" type="text/css" rel="stylesheet">
+<script src="src/lib/jquery-1.5.1.js"></script>
+<script type="text/javascript">
+
+var MINUS = "\u2212";
+
+$(document).ready(function(){
+
+  $("#expand").click(function () {
+    var display = $(".upcoming:last").css("display") === 'none' ? 'hidden' : 'visible';
+    var toggleFirst = function(){
+      var next = $(".upcoming:"+display+":first");
+      if(next.length){
+        next.slideToggle(350/$(".upcoming").length, "linear", toggleFirst);
+      }
+      else {
+        $("#expand").html(display === 'hidden' ? MINUS : "+");
+      }
+    };
+    toggleFirst();
+  });
+
+  $("#help > a").click(function(){
+    $("#help > ol").fadeToggle("fast");
+    return false;
+  });
+  
+});
+</script>
+</head>
+<body>
+<a href="https://github.com/stenington/rubato"><img alt="Fork me on GitHub" src="https://d3nwyuy0nl342s.cloudfront.net/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" style="position: absolute; top: 0; right: 0; border: 0;"></a>
+
+<ol id="clock">
+  <li id="next"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
+  <li class="upcoming zebra-white"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
+  <li class="upcoming zebra-black"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
+  <li class="upcoming zebra-white"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
+</ol>
+
+<section id="footer">
+  <span id="expand">+</span>
+  <span id="msg"><input type="text" style="width:350px" value="Enter a public Google Calendar ID and hit enter to get started!" id="feedEntry"></span>
+</section>
+
+<section id="help">
+  <a href="">More help...</a>
+  <ol>
+    <li>To find your <strong>Google Calendar ID</strong> look at the <em>Calendar Address</em> section under your calendar's <em>Calendar settings</em>.</li>
+    <li>You'll see something like <strong>(Calendar&nbsp;ID:&nbsp;1blfd3aakdn00t7tnm89h5vdkk@group.calendar.google.com)</strong>.</li>
+    <li>Copy that ID, then click <em>Change sharing settings</em> and make sure <em>Make this calendar public</em> is checked.</li>
+    <li>Paste in the ID above and you're on your way. That's it!</li>
+  </ol>
+</section>
+
+</body>
+</html>

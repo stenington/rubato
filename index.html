@@ -4,34 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Rubato: ∞</title>
 <link href="src/style.css" type="text/css" rel="stylesheet">
-<script src="src/lib/jquery-1.5.1.js"></script>
-<script type="text/javascript">
-
-var MINUS = "\u2212";
-
-$(document).ready(function(){
-
-  $("#expand").click(function () {
-    var display = $(".upcoming:last").css("display") === 'none' ? 'hidden' : 'visible';
-    var toggleFirst = function(){
-      var next = $(".upcoming:"+display+":first");
-      if(next.length){
-        next.slideToggle(350/$(".upcoming").length, "linear", toggleFirst);
-      }
-      else {
-        $("#expand").html(display === 'hidden' ? MINUS : "+");
-      }
-    };
-    toggleFirst();
-  });
-
-  $("#help > a").click(function(){
-    $("#help > ol").fadeToggle("fast");
-    return false;
-  });
-  
-});
-</script>
 </head>
 <body>
 <a href="https://github.com/stenington/rubato"><img alt="Fork me on GitHub" src="https://d3nwyuy0nl342s.cloudfront.net/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" style="position: absolute; top: 0; right: 0; border: 0;"></a>
@@ -57,6 +29,83 @@ $(document).ready(function(){
     <li>Paste in the ID above and you're on your way. That's it!</li>
   </ol>
 </section>
+
+<script src="src/lib/jquery-1.5.1.js"></script>
+<script type="text/javascript">
+
+var MINUS = "\u2212";
+
+var urlVars = (function(){
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for(var i = 0; i < hashes.length; i++){
+    hash = hashes[i].split('=');
+    vars.push(hash[0]);
+    vars[hash[0]] = hash[1];
+  }
+  return vars;
+})();
+var cal = urlVars['calendar'];
+
+var redirectOnEnter = function(event){
+  if (event.which == '13') {
+    var baseUrl = window.location.href.indexOf('?') !== -1 ? window.location.href.slice(0, window.location.href.indexOf('?')) : window.location.href;
+    window.location =  baseUrl+ "?calendar=" + $("#feedEntry").val();
+  }
+};
+
+$(document).ready(function(){
+  if( cal === undefined ){
+    $("#feedEntry").focus(function(){
+      $(this).val("");
+      $(this).unbind('focus');
+    });
+    $("#feedEntry").keypress(redirectOnEnter);
+  }
+  else {
+    var feed = '<span id="feed">'+cal+'</span>';
+    var switchToNonEditable = function(){
+      $("#feedEntry").replaceWith(feed);
+      $("#feed").unbind('keypress');
+      $("#feed").unbind('blur');
+      $("#feed").dblclick(switchToEditable);
+      $("#cancel").remove();
+    };
+    var switchToEditable = function(){
+      $("#feed").replaceWith('<input id="feedEntry" type="text" value="'+cal+'" style="width:350px"/><a href="" id="cancel">Cancel</a>');
+      $("#feedEntry").unbind('dblclick');
+      $("#feedEntry").keypress(redirectOnEnter);
+      $("#feedEntry").focus();
+      $("#cancel").click(function(){
+        switchToNonEditable();
+        return false;
+      });
+    };
+    $("#feed").dblclick(switchToEditable);
+    switchToNonEditable();
+  }
+  
+  $("#expand").click(function () {
+    var display = $(".upcoming:last").css("display") === 'none' ? 'hidden' : 'visible';
+    var toggleFirst = function(){
+      var next = $(".upcoming:"+display+":first");
+      if(next.length){
+        next.slideToggle(350/$(".upcoming").length, "linear", toggleFirst);
+      }
+      else {
+        $("#expand").html(display === 'hidden' ? MINUS : "+");
+      }
+    };
+    toggleFirst();
+  });
+
+  $("#help > a").click(function(){
+    $("#help > ol").fadeToggle("fast");
+    return false;
+  });
+  
+});
+</script>
 
 </body>
 </html>

@@ -8,7 +8,7 @@
 <body>
 <a href="https://github.com/stenington/rubato"><img alt="Fork me on GitHub" src="https://d3nwyuy0nl342s.cloudfront.net/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" style="position: absolute; top: 0; right: 0; border: 0;"></a>
 
-<ol id="clock">
+<ol id="face">
   <li id="next"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
   <li class="upcoming zebra-white"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
   <li class="upcoming zebra-black"><span class="time">∞</span> until <span class="until">???</span> <span class="day"></span><span class="type">one-time</span></li>
@@ -31,6 +31,10 @@
 </section>
 
 <script src="src/lib/jquery-1.5.1.js"></script>
+<script src="src/googlehelper.js"></script>
+<script src="src/timepoint.js"></script>
+<script src="src/clock.js"></script>
+<script src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
 
 var MINUS = "\u2212";
@@ -46,6 +50,8 @@ var urlVars = (function(){
   return vars;
 })();
 var cal = urlVars['calendar'];
+var noDraw = urlVars['noDraw'];
+var clockFace;
 
 var redirectOnEnter = function(event){
   if (event.which == '13') {
@@ -55,6 +61,13 @@ var redirectOnEnter = function(event){
 };
 
 $(document).ready(function(){
+
+  clockFace = clock();
+  if(!noDraw){
+    clockFace.draw();
+    setInterval(clockFace.draw, 60000);
+  };
+
   if( cal === undefined ){
     $("#feedEntry").focus(function(){
       $(this).val("");
@@ -103,8 +116,41 @@ $(document).ready(function(){
     $("#help > ol").fadeToggle("fast");
     return false;
   });
-  
 });
+  
+if( cal !== undefined ){
+  var helper = googlehelper({
+    feed: "https://www.google.com/calendar/feeds/"+cal+"/public/full",
+    queryRange:function(){ 
+      var now = new Date();
+      var oneWeek = new Date();
+      oneWeek.setDate(oneWeek.getDate() + 7);
+      return { start: now, end: oneWeek };
+    },
+    onFetch:function(results){ 
+      var timepoints = [];
+      for(i in results){
+        timepoints[i] = timepoint({
+          date: results[i].getTimes()[0].getStartTime().date,
+          message: results[i].getTitle().getText(),
+          type: results[i].getOriginalEvent() === undefined ? 'one-time' : 'weekly'
+        });
+      }
+      return timepoints; 
+    },
+    onFail:function(e){
+      alert(e.cause ? e.cause.statusText : e.message);
+    }
+  });
+
+  google.load("gdata", "2");
+  google.setOnLoadCallback(function(){
+    helper.fetchAndThen(function(entries){
+      clockFace.setEntries(entries);
+      clockFace.draw();
+    });
+  });
+}
 </script>
 
 </body>

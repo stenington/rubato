@@ -1,43 +1,77 @@
 
 describe("Clock", function(){
-  var c;
-  var container_i = 1;
-  var container; 
+
+  /* TestClock sets up a container, clock and face for use in testing. 
+     Each gets appended to the page. 
+   */
+  var TestClock = (function(){
+    var container_i = 1;
+
+    return function(titleText){
+      var containerId = "testClock"+container_i;
+      titleText = titleText || containerId;
+      var title = $('<h3>'+titleText+'</h3>').appendTo("body");
+      $("body").append('<div id="'+containerId+'"></div>');
+      var container = $("#"+containerId);
+      container.append('<ol id="face"></ol>');
+      $("#face", container).append('<li id="next"><span class="time"></span> until <span class="until"></span> <span class="day"></span><span class="type"></span></li>');
+      container.append('<a id="expand">More</a>');
+      var c = clock({rootId:"#"+containerId});
+      container_i += 1;
+      
+      return {
+        "clock": c,
+        "container": container,
+        "face": $("#face", container),
+        "title": function(newTitle){
+          title.html(newTitle);
+        }
+      };
+    };
+  })();
+
+  var t;
 
   before(function(){
-    var containerId = "testArea"+container_i;
-    $("body").append('<h3>'+containerId+'</h3>');
-    $("body").append('<div id="'+containerId+'"></div>');
-    container = $("#"+containerId);
-    c = clock({containerId:"#"+containerId});
-    container_i += 1;
+    t = TestClock();
   });
 
   it("should be creatable", function(){
-    assert(clock()).should(beAn, Object);
+    assert(t.clock).should(beAn, Object);
   });
 
   it("should draw in specified element", function(){
-    c.draw();
-    assert($("#clock"), container).should(beOnThePage);
-    assert($("#clock #next"), container).should(beOnThePage);
-    assert($("#clock .upcoming"), container).shouldNot(beOnThePage);
+    t.clock.setEntries([
+      timepoint({
+        date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
+        message: "my msg",
+        type: "foo"
+      })
+    ]);
+    t.clock.draw();
+    assert($(t.face)).should(beOnThePage);
+    assert($("#next", t.face)).should(beOnThePage);
+    assert($("#next .until", t.face).html()).should(match, /^my msg$/);
+    assert($("#face .upcoming", t.face)).shouldNot(beOnThePage);
   });
 
   it("should not cross-pollinate drawing areas", function(){
-    // TODO: check that this is actually working right
-    c.draw();
-    assert($("#clock", container).length).should(eql, 1);
-    assert($("#clock > #next", container).length).should(eql, 1);
-    $("body").append('<div id="crosspoll"></div>');
-    d = clock({containerId:"#crosspoll"});
-    d.draw();
-    assert($("#clock", container).length).should(eql, 1);
-    assert($("#clock > #next", container).length).should(eql, 1);
+    t.title("cross-pollinate 1");
+    var t2 = TestClock("cross-pollinate 2");
+    t.clock.setEntries([
+      timepoint({
+        date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
+        message: "no cross-pollination",
+        type: "foo"
+      })
+    ]);
+    t.clock.draw();
+    assert($("#next .until", t.face).html()).should(match, /^no cross-pollination$/);
+    assert($("#next .until", t2.face).html()).shouldNot(match, /^no cross-pollination$/);
   });
 
   it("shouldn't double-draw existing clock elements", function(){
-    c.setEvents([
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
         message: "one",
@@ -54,50 +88,51 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    c.draw();
-    assert($("#clock", container).length).should(eql, 1);
-    assert($("#next", container).length).should(eql, 1);
-    assert($(".upcoming", container).length).should(eql, 2);
+    t.clock.draw();
+    t.clock.draw();
+    assert(t.face.length).should(eql, 1);
+    assert($("#next", t.face).length).should(eql, 1);
+    assert($(".upcoming", t.face).length).should(eql, 2);
   });
 
   it("should draw infinity until ??? when uninitialized", function(){
-    c.draw();
-    assert($("#clock #next .time", container).html()).should(eql, "\u221E");
-    assert($("#clock #next .until", container).html()).should(eql, "???");
-    assert($("#clock #next .type", container).html()).should(eql, "one-time");
+    t.clock.draw();
+    assert($("#next .time", t.face).html()).should(eql, "\u221E");
+    assert($("#next .until", t.face).html()).should(eql, "???");
+    assert($("#next .type", t.face).html()).should(eql, "one-time");
   });
 
-  it("should draw next event when there is one", function(){
-    c.setEvents([timepoint({
+  it("should draw next entry when there is one", function(){
+    t.clock.setEntries([timepoint({
       date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
       message: "hi",
       type: "foo"
     })]);
-    c.draw();
-    assert($("#clock #next .time", container).html()).should(eql, "1:00");
-    assert($("#clock #next .until", container).html()).should(eql, "hi");
-    assert($("#clock #next .type", container).html()).should(eql, "foo");
-    assert($("#clock #next .day", container).html()).should(match, /today|tomorrow/);
+    t.clock.draw();
+    assert($("#next .time", t.face).html()).should(eql, "1:00");
+    assert($("#next .until", t.face).html()).should(eql, "hi");
+    assert($("#next .type", t.face).html()).should(eql, "foo");
+    assert($("#next .day", t.face).html()).should(match, /today|tomorrow/);
   });
 
-  it("should not double-draw existing event", function(){
-    c.setEvents([timepoint({
+  it("should not double-draw existing entry", function(){
+    /* TODO: delete if this is a duplicate test */
+    t.clock.setEntries([timepoint({
       date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
       message: "hi",
       type: "foo"
     })]);
-    c.draw();
-    c.draw();
-    assert($("#clock", container).length).should(eql, 1);
-    assert($("#clock > #next", container).length).should(eql, 1);
-    assert($("#next > .time", container).length).should(eql, 1);
-    assert($("#next > .until", container).length).should(eql, 1);
-    assert($("#next > .type", container).length).should(eql, 1);
+    t.clock.draw();
+    t.clock.draw();
+    assert(t.face.length).should(eql, 1);
+    assert($("> #next", t.face).length).should(eql, 1);
+    assert($("#next > .time", t.face).length).should(eql, 1);
+    assert($("#next > .until", t.face).length).should(eql, 1);
+    assert($("#next > .type", t.face).length).should(eql, 1);
   });
 
   it("should draw next even chronologically", function(){
-    c.setEvents([
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
         message: "second",
@@ -109,14 +144,14 @@ describe("Clock", function(){
         type: "foo"
       })
     ]);
-    c.draw();
-    assert($("#clock #next .time", container).html()).should(eql, "0:01");
-    assert($("#clock #next .until", container).html()).should(eql, "first");
-    assert($("#clock #next .type", container).html()).should(eql, "foo");
+    t.clock.draw();
+    assert($("#next .time", t.face).html()).should(eql, "0:01");
+    assert($("#next .until", t.face).html()).should(eql, "first");
+    assert($("#next .type", t.face).html()).should(eql, "foo");
   });
 
-  it("should remove expired event and draw next", function(){
-    c.setEvents([
+  it("should remove expired entry and draw next", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
         message: "one",
@@ -128,22 +163,22 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    assert($("#clock #next .time", container).html()).should(eql, "0:00");
-    assert($("#clock #next .until", container).html()).should(eql, "one");
-    assert($("#clock #next .type", container).html()).should(eql, "foo");
+    t.clock.draw();
+    assert($("#next .time", t.face).html()).should(eql, "0:00");
+    assert($("#next .until", t.face).html()).should(eql, "one");
+    assert($("#next .type", t.face).html()).should(eql, "foo");
     stop();
     setTimeout(function(){
-      c.draw();
-      assert($("#clock #next .time", container).html()).should(eql, "0:00");
-      assert($("#clock #next .until", container).html()).should(eql, "two");
-      assert($("#clock #next .type", container).html()).should(eql, "foo");
+      t.clock.draw();
+      assert($("#next .time", t.face).html()).should(eql, "0:00");
+      assert($("#next .until", t.face).html()).should(eql, "two");
+      assert($("#next .type", t.face).html()).should(eql, "foo");
       start();
     }, 1000);
   });
 
-  it("should return to infinity display when all events expire", function(){
-    c.setEvents([
+  it("should return to infinity display when all entries expire", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
         message: "one",
@@ -155,26 +190,26 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    assert($("#clock #next .time", container).html()).should(eql, "0:00");
-    assert($("#clock #next .until", container).html()).should(eql, "one");
-    assert($("#clock #next .type", container).html()).should(eql, "foo");
-    assert($("#clock .upcoming .time", container).html()).should(eql, "0:00");
-    assert($("#clock .upcoming .until", container).html()).should(eql, "two");
-    assert($("#clock .upcoming .type", container).html()).should(eql, "foo");
+    t.clock.draw();
+    assert($("#next .time", t.face).html()).should(eql, "0:00");
+    assert($("#next .until", t.face).html()).should(eql, "one");
+    assert($("#next .type", t.face).html()).should(eql, "foo");
+    assert($(".upcoming .time", t.face).html()).should(eql, "0:00");
+    assert($(".upcoming .until", t.face).html()).should(eql, "two");
+    assert($(".upcoming .type", t.face).html()).should(eql, "foo");
     stop();
     setTimeout(function(){
-      c.draw();
-      assert($("#clock #next .time", container).html()).should(eql, "\u221E");
-      assert($("#clock #next .until", container).html()).should(eql, "???");
-      assert($("#clock #next .type", container).html()).should(eql, "one-time");
-      assert($(".upcoming", container).length).should(eql, 0);
+      t.clock.draw();
+      assert($("#next .time", t.face).html()).should(eql, "\u221E");
+      assert($("#next .until", t.face).html()).should(eql, "???");
+      assert($("#next .type", t.face).html()).should(eql, "one-time");
+      assert($(".upcoming", t.face).length).should(eql, 0);
       start();
     }, 2100);
   });
 
-  it("should display list of additional upcoming events", function(){
-    c.setEvents([
+  it("should display list of additional upcoming entries", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
         message: "one",
@@ -186,16 +221,16 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    assert($("#clock > .upcoming", container)).should(beOnThePage);
-    assert($("#clock > .upcoming:first > .time", container).html()).should(eql, "1:59");
-    assert($("#clock > .upcoming:first > .until", container).html()).should(eql, "two");
-    assert($("#clock > .upcoming:first > .type", container).html()).should(eql, "foo");
-    assert($("#clock > .upcoming:first > .day", container).html()).should(match, /today|tomorrow/);
+    t.clock.draw();
+    assert($("> .upcoming", t.face)).should(beOnThePage);
+    assert($("> .upcoming:first > .time", t.face).html()).should(eql, "1:59");
+    assert($("> .upcoming:first > .until", t.face).html()).should(eql, "two");
+    assert($("> .upcoming:first > .type", t.face).html()).should(eql, "foo");
+    assert($("> .upcoming:first > .day", t.face).html()).should(match, /today|tomorrow/);
   });
 
-  it("upcoming events should be in order", function(){
-    c.setEvents([
+  it("upcoming entries should be in order", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
         message: "one",
@@ -212,19 +247,19 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    assert($("#clock > .upcoming:first", container)).should(beOnThePage);
-    assert($("#clock > .upcoming:first > .time", container).html()).should(eql, "1:59");
-    assert($("#clock > .upcoming:first > .until", container).html()).should(eql, "two");
-    assert($("#clock > .upcoming:first > .type", container).html()).should(eql, "foo");
-    assert($("#clock > .upcoming:last", container)).should(beOnThePage);
-    assert($("#clock > .upcoming:last > .time", container).html()).should(eql, "3:00");
-    assert($("#clock > .upcoming:last > .until", container).html()).should(eql, "three");
-    assert($("#clock > .upcoming:last > .type", container).html()).should(eql, "foo");
+    t.clock.draw();
+    assert($("> .upcoming:first", t.face)).should(beOnThePage);
+    assert($("> .upcoming:first > .time", t.face).html()).should(eql, "1:59");
+    assert($("> .upcoming:first > .until", t.face).html()).should(eql, "two");
+    assert($("> .upcoming:first > .type", t.face).html()).should(eql, "foo");
+    assert($("> .upcoming:last", t.face)).should(beOnThePage);
+    assert($("> .upcoming:last > .time", t.face).html()).should(eql, "3:00");
+    assert($("> .upcoming:last > .until", t.face).html()).should(eql, "three");
+    assert($("> .upcoming:last > .type", t.face).html()).should(eql, "foo");
   });
 
-  it("upcoming events should display time until event starting from the previous event (not from now)", function(){
-    c.setEvents([
+  it("upcoming entries should display time until starting from the previous entry (not from now)", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
         message: "one",
@@ -236,66 +271,15 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    assert($("#clock > .upcoming", container)).should(beOnThePage);
-    assert($("#clock > .upcoming:first > .time", container).html()).should(eql, "4:00");
-    assert($("#clock > .upcoming:first > .until", container).html()).should(eql, "two");
-    assert($("#clock > .upcoming:first > .type", container).html()).should(eql, "foo");
+    t.clock.draw();
+    assert($("> .upcoming", t.face)).should(beOnThePage);
+    assert($("> .upcoming:first > .time", t.face).html()).should(eql, "4:00");
+    assert($("> .upcoming:first > .until", t.face).html()).should(eql, "two");
+    assert($("> .upcoming:first > .type", t.face).html()).should(eql, "foo");
   });
 
-  it("should not display expansion button when there aren't upcoming events", function(){
-    c.setEvents([
-      timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
-        message: "one",
-        type: "foo"
-      }),
-    ]);
-    c.draw();
-    assert($("#footer > #expand", container).css('display')).should(eql, 'none');
-  });
-
-  it("should display expansion button when there are upcoming events", function(){
-    c.setEvents([
-      timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+1); return d; }(),
-        message: "one",
-        type: "foo"
-      }),
-      timepoint({
-        date: function(){ var d = new Date(); d.setHours(d.getHours()+2); return d; }(),
-        message: "two",
-        type: "foo"
-      }),
-    ]);
-    c.draw();
-    assert($("#footer > #expand", container).css('display')).shouldNot(eql, 'none');
-  });
-
-  asyncIt("should not display expansion button when upcoming events have expired", function(){
-    c.setEvents([
-      timepoint({
-        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+1); return d; }(),
-        message: "one",
-        type: "foo"
-      }),
-      timepoint({
-        date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+2); return d; }(),
-        message: "two",
-        type: "foo"
-      }),
-    ]);
-    c.draw();
-    assert($("#footer > #expand", container).css('display')).shouldNot(eql, 'none');
-    setTimeout(function(){
-      c.draw();
-      assert($("#footer > #expand", container).css('display')).should(eql, 'none');
-      start();
-    }, 2100);
-  });
-
-  it("should zebra-stripe upcoming events by day", function(){
-    c.setEvents([
+  it("should zebra-stripe upcoming entries by day", function(){
+    t.clock.setEntries([
       timepoint({
         date: function(){ var d = new Date(); d.setSeconds(d.getSeconds()+5); return d; }(),
         message: "next",
@@ -327,20 +311,13 @@ describe("Clock", function(){
         type: "foo"
       }),
     ]);
-    c.draw();
-    var upcomings = $(".upcoming", container).toArray();
+    t.clock.draw();
+    var upcomings = $(".upcoming", t.face).toArray();
     assert($(upcomings[0]).hasClass('zebra-white')).should(be);
     assert($(upcomings[1]).hasClass('zebra-black')).should(be);
     assert($(upcomings[2]).hasClass('zebra-black')).should(be);
     assert($(upcomings[3]).hasClass('zebra-white')).should(be);
     assert($(upcomings[4]).hasClass('zebra-white')).should(be);
-  });
-
-  it("should provide a calendar id field to be set at will", function(){
-    c.draw();
-    assert($("#footer > #msg", container).length).should(eql, 1);
-    c.setMessage("oh hello");
-    assert($("#footer > #msg", container).html()).should(eql, "oh hello");
   });
 });
 

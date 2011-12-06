@@ -1,111 +1,107 @@
 function clock(spec){
-  const MINUS = "\u2212";
   const INFINITY = "\u221E";
 
   spec = spec || {};
-  var containerId = spec.containerId || "body";
-  var events;
-  var container = $(containerId);
+  var rootId = spec.rootId || "body";
 
-  if( !$("#clock", container).length ){
-    container.append('<ol id="clock"></ol>');
-    $("#clock", container).append('<li id="next"></li>');
-    $("#clock > #next", container).append('<span class="time"></span> until <span class="until"></span> <span class="day"></span><span class="type"></span>');
-    $("#clock", container).after('<p id="footer"></p>');
-    $("#footer", container).html('<span id="expand">+</span><span id="msg"></span>');
-    $("#expand", container).hide();
-    $("#expand", container).click(function () {
-      var display = $(".upcoming:last", container).css("display") === 'none' ? 'hidden' : 'visible';
-      var toggleFirst = function(){
-        var next = $(".upcoming:"+display+":first", container);
-        if(next.length){
-          next.slideToggle(350/$(".upcoming", container).length, "linear", toggleFirst);
-        }
-        else {
-          $("#expand", container).html(display === 'hidden' ? MINUS : "+");
-        }
-      };
-      toggleFirst();
-    });
+  /* Certain elements are expected to exist inside the root element:
+      #face       - holds the next and upcoming entries
+        #next     - holds the details for the next entry, chronologically;
+                    acts as a template for the other upcoming entries
+          .time   - hours remaining
+          .until  - entry title
+          .day    - entry day
+          .type   - entry type (one-time vs. repeated)
+  */
+  var faceId = "#face";
+  var nextEntryId = "#next";
+
+  var entries;
+  var root = $(rootId);
+  var face = $(faceId, root);
+  var nextEntry = $(nextEntryId, root);
+
+  var upcomingTemplate = nextEntry.clone(false);
+  upcomingTemplate.removeAttr('id');
+  upcomingTemplate.addClass('upcoming');
+  
+  if( !face.length ){
+    throw 'No clock face found with [' + faceId + ']';
+  }
+  if( !nextEntry.length ){
+    throw 'No next entry found with [' + nextEntryId + ']';
+  }
+  var classNames = ['.time', '.until', '.day', '.type'];
+  for( var i in classNames ){
+    if( !$(classNames[i], nextEntry).length ){
+      throw 'No next entry slot found with [' + classNames[i] + ']';
+    }
   }
 
   var that = {};
 
-  var currentDisplay; 
-
   that.draw = function(){
-    that.updateEvents();
-    currentDisplay = $(".upcoming:first", container).css('display');
-    while($("#clock > .upcoming:first", container).length){
-      $("#clock > .upcoming:first", container).remove();
-    };
-    if( !events || !events.length ){
-      $("#footer > #expand", container).hide();
-      that.drawEmpty();
+    that.updateEntries();
+    $(".upcoming", root).remove();
+    if( !entries || !entries.length ){
+      that.drawEmpty(nextEntry);
     }
-    else if( events.length == 1) {
-      $("#footer > #expand", container).hide();
-      that.drawNext(events[0]);
+    else if( entries.length == 1) {
+      that.drawNext(nextEntry, entries[0]);
     } else {
-      $("#footer > #expand", container).show();
-      that.drawNext(events[0]);
-      that.drawRest(events);
+      that.drawNext(nextEntry, entries[0]);
+      that.drawRest(upcomingTemplate, face, entries);
     }
   };
-
-  that.drawEmpty = function(){
-    $("#next > .time", container).html(INFINITY);
-    $("#next > .until", container).html('???');
-    $("#next > .type", container).html('one-time');
-    $("#next > .day", container).empty();
-    document.title = "Rubato: " + "\u221E";
+  
+  that.drawEntry = function(container, time, entry){
+    $("> .time", container).html(time);
+    $("> .until", container).html(entry.getMessage());
+    $("> .type", container).html(entry.getType());
+    $("> .day", container).html(entry.getDay());
+    document.title = "Rubato: " + time;
   };
 
-  that.drawNext = function(next){
-    var timeLeft = next.getTimeUntil();
-    $("#next > .time", container).html(timeLeft.timeDisplay);
-    $("#next > .until", container).html(next.getMessage());
-    $("#next > .type", container).html(next.getType());
-    $("#next > .day", container).html(next.getDay());
-    document.title = "Rubato: " + timeLeft.timeDisplay;
+  that.drawEmpty = function(container){
+    var empty = {
+      'getMessage': function(){ return '???' },
+      'getType': function(){ return 'one-time' },
+      'getDay': function(){ return '' }
+    };
+    that.drawEntry(container, INFINITY, empty);
   };
 
-  that.drawRest = function(events){
+  that.drawNext = function(container, entry){
+    var timeLeft = entry.getTimeUntil();
+    that.drawEntry(container, timeLeft.timeDisplay, entry);
+  };
+
+  that.drawRest = function(elTemplate, face, entries){
     var currentStripe = 'zebra-white';
-    for(var i=1; i<events.length; i++){
-      var prev = events[i-1];
-      var next = events[i];
+    for(var i=1; i<entries.length; i++){
+      var prev = entries[i-1];
+      var next = entries[i];
       if( next.getDate().getDay() != prev.getDate().getDay() ){
         currentStripe = currentStripe == 'zebra-white' ? 'zebra-black' : 'zebra-white';
       }
       var timeLeft = next.getTimeRemainingFrom(prev.getDate());
-      $("#clock", container).append('<li class="upcoming"></li>');  
-      var upcoming = $("#clock > .upcoming:last");
-      upcoming.html('then <span class="time"></span> until <span class="until"></span> <span class="day"></span><span class="type"></span>');
-      $(".time", upcoming).html(timeLeft.timeDisplay);
-      $(".until", upcoming).html(next.getMessage());
-      $(".type", upcoming).html(next.getType());
-      $(".day", upcoming).html(next.getDay());
-      upcoming.css('display', currentDisplay);
+      var upcoming = elTemplate.clone(false).appendTo(face);
       upcoming.addClass(currentStripe);
+      that.drawEntry(upcoming, timeLeft.timeDisplay, next);
     }
   };
 
-  that.updateEvents = function(){
-    while(events && events.length && events[0].isExpired()){
-      events.shift();
+  that.updateEntries = function(){
+    while(entries && entries.length && entries[0].isExpired()){
+      entries.shift();
     }
   };
 
-  that.setEvents = function(newEvents){
-    events = newEvents;
-    events.sort(function(a, b){
+  that.setEntries = function(newEntries){
+    entries = newEntries;
+    entries.sort(function(a, b){
       return a.getDate().getTime() - b.getDate().getTime(); 
     });
-  };
-
-  that.setMessage = function(msg){
-    $("#footer > #msg", container).html(msg);
   };
 
   return that;
